@@ -1,4 +1,4 @@
-package vramesh.gw2dailynotifications;
+package vramesh.gw2dailynotifications.dailies;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,14 +8,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+import vramesh.gw2dailynotifications.R;
+
+public class DailiesActivity extends AppCompatActivity {
 
     final String TAG = "GW2DailyNotifications";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_dailies);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.action_bar_toolbar);
         setSupportActionBar(myToolbar);
