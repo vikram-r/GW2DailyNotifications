@@ -1,5 +1,6 @@
 package vramesh.gw2dailynotifications.dailies;
 
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -14,6 +15,8 @@ public class DailiesActivity extends AppCompatActivity {
 
     final String TAG = "GW2DailyNotifications";
 
+    private DailiesPresenter mDailiesPresenter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +24,23 @@ public class DailiesActivity extends AppCompatActivity {
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.action_bar_toolbar);
         setSupportActionBar(myToolbar);
+
+        DailiesFragment dailiesFragment =
+                (DailiesFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        if (dailiesFragment == null) {
+            dailiesFragment = DailiesFragment.newInstance();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.fragment_container, dailiesFragment)
+                    .commit();
+        }
+
+        mDailiesPresenter = new DailiesPresenter(
+                dailiesFragment,
+                new DailiesLoader(getApplicationContext()),
+                getSupportLoaderManager()
+        );
     }
 
     @Override
