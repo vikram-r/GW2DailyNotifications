@@ -13,7 +13,7 @@ public interface DailiesContract {
 
     interface View extends BaseView<DailiesPresenter> {
 
-        void updateAllDailies(List<Daily> dailies);
+        void updateAllDailies(List<DailyListing> dailies);
 
     }
 

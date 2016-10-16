@@ -3,7 +3,6 @@ package vramesh.gw2dailynotifications.dailies;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +39,7 @@ public class DailiesFragment extends ListFragment implements DailiesContract.Vie
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAdapter = new DailiesAdapter(new ArrayList<Daily>());
+        mAdapter = new DailiesAdapter(new ArrayList<DailyListing>());
         setListAdapter(mAdapter);
     }
 
@@ -62,26 +61,26 @@ public class DailiesFragment extends ListFragment implements DailiesContract.Vie
     }
 
     @Override
-    public void updateAllDailies(List<Daily> dailies) {
+    public void updateAllDailies(List<DailyListing> dailies) {
         mAdapter.updateAll(dailies);
     }
 
     private static class DailiesAdapter extends BaseAdapter {
 
-        private List<Daily> mDailies;
+        private List<DailyListing> mDailies;
 
         //todo add listener here if required
-        public DailiesAdapter(List<Daily> dailies) {
+        public DailiesAdapter(List<DailyListing> dailies) {
             setDailies(dailies);
         }
 
-        public void updateAll(List<Daily> dailies) {
+        public void updateAll(List<DailyListing> dailies) {
             setDailies(dailies);
             notifyDataSetChanged();
         }
 
-        private void setDailies(List<Daily> dailies) {
-            mDailies = dailies != null ? dailies : new ArrayList<Daily>();
+        private void setDailies(List<DailyListing> dailies) {
+            mDailies = dailies != null ? dailies : new ArrayList<DailyListing>();
         }
 
         @Override
@@ -90,7 +89,7 @@ public class DailiesFragment extends ListFragment implements DailiesContract.Vie
         }
 
         @Override
-        public Daily getItem(int i) {
+        public DailyListing getItem(int i) {
             return mDailies.get(i);
         }
 
@@ -102,10 +101,10 @@ public class DailiesFragment extends ListFragment implements DailiesContract.Vie
                 LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
                 dailyListingView = inflater.inflate(R.layout.daily_listing, viewGroup, false);
             }
-            final Daily daily = getItem(i);
+            final DailyListing dailyListing = getItem(i);
 
             TextView dailyNameView = (TextView) dailyListingView.findViewById(R.id.daily_listing_name);
-            dailyNameView.setText(daily.getName());
+            dailyNameView.setText(dailyListing.getGameMode() + ": " + dailyListing.getName());
             dailyListingView.setBackgroundColor(Color.RED);
 
             return dailyListingView;
