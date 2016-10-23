@@ -6,69 +6,73 @@ import android.support.v4.content.Loader;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import vramesh.gw2dailynotifications.http.HttpRequestQueue;
 
 /**
- * An asynchronous loader that can be used with Volley http requests.
- *
- * R is the response representation, U is the UI representation
+ * An asynchronous loader that can be used with Volley http requests. An implementor should call
+ * {@link #executeRequest(Request)} whenever a volley request is made. VolleyLoader will manage the
+ * request in accordance with it's own lifecycle.
  *
  */
-public abstract class VolleyLoader<R, U> extends Loader<U> {
+public abstract class VolleyLoader<U> extends Loader<U> {
 
-    private Request<R> mCurrentRequest;
+    private List<Request> mCurrentRequests = new ArrayList<>();
 
     public VolleyLoader(Context context) {
         super(context);
     }
 
     /**
-     * Describe how to convert a R (response representation) into a U (ui representation)
-     * @param in the incoming data representation
-     * @return "in" transformed into it's corresponding UI representation
+     * Make any volley requests necessary to load data into this loader
      */
-    abstract U toUIRepresentation(R in);
-
-    /**
-     * Make the volley request that should be made to load data into this loader
-     * @return the Request
-     */
-    abstract Request<R> makeRequest();
+    abstract void loadData();
 
     @Override
     protected void onForceLoad() {
-        mCurrentRequest = makeRequest();
-        HttpRequestQueue.getInstance(getContext()).getRequestQueue().add(mCurrentRequest);
+        loadData();
     }
 
-    private void cancelCurrentRequest() {
+    /**
+     * Keep track of and execute a volley request. VolleyLoader will manage the request in accordance
+     * with its own lifecycle.
+     * @param r the request to execute
+     */
+    void executeRequest(Request r) {
+        mCurrentRequests.add(r);
+        HttpRequestQueue.getInstance(getContext()).getRequestQueue().add(r);
+    }
+
+    private void cancelCurrentRequests() {
         HttpRequestQueue.getInstance(getContext()).getRequestQueue().cancelAll(new RequestQueue.RequestFilter() {
             @Override
             public boolean apply(Request<?> request) {
-                return request.equals(mCurrentRequest);
+                return mCurrentRequests.contains(request);
             }
         });
     }
 
     @Override
     protected boolean onCancelLoad() {
-        cancelCurrentRequest();
+        cancelCurrentRequests();
         return false;
     }
 
     @Override
     protected void onStopLoading() {
-        cancelCurrentRequest();
+        cancelCurrentRequests();
     }
 
     @Override
     protected void onAbandon() {
-        cancelCurrentRequest();
+        cancelCurrentRequests();
     }
 
     @Override
     protected void onReset() {
-        cancelCurrentRequest();
+        cancelCurrentRequests();
     }
 
 

@@ -104,7 +104,7 @@ public class DailiesFragment extends ListFragment implements DailiesContract.Vie
             final DailyListing dailyListing = getItem(i);
 
             TextView dailyNameView = (TextView) dailyListingView.findViewById(R.id.daily_listing_name);
-            dailyNameView.setText(dailyListing.getGameMode() + ": " + dailyListing.getName());
+            dailyNameView.setText(dailyListing.getName() + ": " + dailyListing.getDescription());
             dailyListingView.setBackgroundColor(Color.RED);
 
             return dailyListingView;

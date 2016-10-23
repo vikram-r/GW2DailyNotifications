@@ -7,18 +7,18 @@ package vramesh.gw2dailynotifications.dailies;
 public class DailyListing {
 
     private final String name;
-    private final String gameMode;
+    private final String description;
 
-    public DailyListing(String name, String gameMode) {
+    public DailyListing(String name, String description) {
         this.name = name;
-        this.gameMode = gameMode;
+        this.description = description;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getGameMode() {
-        return gameMode;
+    public String getDescription() {
+        return description;
     }
 }

@@ -3,18 +3,19 @@ package vramesh.gw2dailynotifications.dailies;
 import android.content.Context;
 import android.util.Log;
 
-import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import vramesh.gw2dailynotifications.http.BundledResponseListener;
 import vramesh.gw2dailynotifications.http.Gw2ApiWrapper;
 import vramesh.gw2dailynotifications.model.Daily;
-import vramesh.gw2dailynotifications.model.DailyResponse;
+import vramesh.gw2dailynotifications.model.DailiesResponse;
+import vramesh.gw2dailynotifications.model.DailyInfo;
 
-public class DailiesLoader extends VolleyLoader<DailyResponse, List<DailyListing>> {
+public class DailiesLoader extends VolleyLoader<List<DailyListing>> {
 
     final String TAG = "GW2DailyNotifications";
 
@@ -22,39 +23,39 @@ public class DailiesLoader extends VolleyLoader<DailyResponse, List<DailyListing
         super(context);
     }
 
-    @Override
-    List<DailyListing> toUIRepresentation(DailyResponse in) {
+    List<DailyListing> toUIRepresentation(List<DailyInfo> in) {
         List<DailyListing> allDailies = new ArrayList<>();
-
-        //gross
-        for (Daily pveDaily : in.getPve()) {
-            allDailies.add(toDailyListing(pveDaily, "PvE"));
+        for (DailyInfo d: in) {
+            allDailies.add(toDailyListing(d));
         }
-        for (Daily pvpDaily : in.getPvp()) {
-            allDailies.add(toDailyListing(pvpDaily, "PvP"));
-        }
-        for (Daily wvwDaily : in.getWvw()) {
-            allDailies.add(toDailyListing(wvwDaily, "WvW"));
-        }
-        for (Daily specialDaily : in.getSpecial()) {
-            allDailies.add(toDailyListing(specialDaily, "Special"));
-        }
-
         return allDailies;
     }
 
-    private DailyListing toDailyListing(Daily d, String gameMode) {
+    private DailyListing toDailyListing(DailyInfo d) {
         //todo make this awesome
-        return new DailyListing(d.getId() + "", gameMode);
+        return new DailyListing(d.getName() + "", d.getDescription());
     }
 
     @Override
-    Request<DailyResponse> makeRequest() {
-        Response.Listener<DailyResponse> callback = new Response.Listener<DailyResponse>() {
+    void loadData() {
+        Response.Listener<DailiesResponse> callback = new Response.Listener<DailiesResponse>() {
             @Override
-            public void onResponse(DailyResponse response) {
-                //update the ui
-                deliverResult(toUIRepresentation(response));
+            public void onResponse(final DailiesResponse response) {
+                // Only update the ui when ALL dailies have been loaded
+                BundledResponseListener<DailyInfo> bundledListener = new BundledResponseListener<>(
+                        response.getAllDailies().size(),
+                        new BundledResponseListener.BundledResponseCompleteListener<DailyInfo>() {
+                            @Override
+                            public void onAllRequestsComplete(List<DailyInfo> response) {
+                                deliverResult(toUIRepresentation(response));
+                            }
+                        }
+                );
+
+                // make a request to get more info for each daily
+                for (Daily daily : response.getAllDailies()) {
+                    executeRequest(Gw2ApiWrapper.makeDailyInfoRequest(daily.getId(), bundledListener, bundledListener));
+                }
             }
         };
         Response.ErrorListener errorCallback = new Response.ErrorListener() {
@@ -64,6 +65,6 @@ public class DailiesLoader extends VolleyLoader<DailyResponse, List<DailyListing
             }
         };
 
-        return Gw2ApiWrapper.makeDailyRequest(callback, errorCallback);
+        executeRequest(Gw2ApiWrapper.makeAllDailiesRequest(callback, errorCallback));
     }
 }
