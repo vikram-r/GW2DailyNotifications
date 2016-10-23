@@ -16,7 +16,7 @@ public class BundledResponseListener<T> implements Response.Listener<T>, Respons
 
     final String TAG = "GW2DailyNotifications";
     private static int mTotalRequests;
-    private static int requestsComplete = 0;
+    private static int mRequestsComplete = 0;
     private BundledResponseCompleteListener<T> mListener;
     private List<T> mCurrentResults = new ArrayList<>();
 
@@ -31,7 +31,7 @@ public class BundledResponseListener<T> implements Response.Listener<T>, Respons
     @Override
     public void onResponse(T response) {
         mCurrentResults.add(response);
-        if (++requestsComplete >= mTotalRequests) {
+        if (++mRequestsComplete >= mTotalRequests) {
             //all requests have completed, execute callback
             mListener.onAllRequestsComplete(mCurrentResults);
         }
@@ -39,7 +39,7 @@ public class BundledResponseListener<T> implements Response.Listener<T>, Respons
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        requestsComplete++;
+        mRequestsComplete++;
         Log.e(TAG, error.getMessage());
     }
 
@@ -48,7 +48,9 @@ public class BundledResponseListener<T> implements Response.Listener<T>, Respons
      * @param <T>
      */
     public interface BundledResponseCompleteListener<T> {
-        /** Called when a response is received. */
-        public void onAllRequestsComplete(List<T> response);
+        /**
+         * Called when ALL responses have been received
+         */
+        void onAllRequestsComplete(List<T> response);
     }
 }
